@@ -7,7 +7,7 @@ RUN npm install -g bun
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
@@ -19,7 +19,7 @@ COPY . .
 RUN bun run build
 
 # Expose the port
-EXPOSE 3000
+EXPOSE 4173
 
 # Start the application
 CMD ["bun", "run", "preview", "--host", "0.0.0.0"]

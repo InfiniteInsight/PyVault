@@ -25,23 +25,23 @@ services:
     environment:
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN: root
-    depends_on:
-      vault:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    #depends_on:
+      #vault:
+        #condition: service_healthy
+    #healthcheck:
+      #test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      #interval: 10s
+      #timeout: 5s
+      #retries: 5
 
   frontend:
     build:
       context: ./frontend
     ports:
-      - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
+      - "3000:4173"
+    #depends_on:
+      #backend:
+        #condition: service_healthy
 
 volumes:
   vault-data:

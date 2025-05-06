@@ -13,10 +13,11 @@ COPY src/ ./src/
 
 # Create venv and install dependencies
 RUN uv venv
-RUN uv pip install --no-cache-dir -e .
+#RUN uv pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir fastapi uvicorn hvac pydantic python-dotenv
 
 # Expose API port
 EXPOSE 8000
 
 # Run the API
-CMD ["python", "-m", "pyvault.main"]
+CMD ["python", "-m", "src.pyvault.main"]
