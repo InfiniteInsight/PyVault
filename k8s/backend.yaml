@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyvault-backend
+  labels:
+    app: pyvault-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyvault-backend
+  template:
+    metadata:
+      labels:
+        app: pyvault-backend
+    spec:
+      containers:
+        - name: pyvault-backend
+          image: pyvault-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: VAULT_ADDR
+              value: http://vault:8200
+            - name: VAULT_TOKEN
+              value: root
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyvault-backend
+spec:
+  selector:
+    app: pyvault-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP

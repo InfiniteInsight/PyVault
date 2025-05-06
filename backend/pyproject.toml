@@ -1,0 +1,34 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [
+  {name = "Evan Nevermore"},
+]
+dependencies = [
+  "fastapi>=0.104.0",
+  "uvicorn>=0.23.2",
+  "hvac>=1.2.1",
+  "pydantic>=2.4.2",
+  "python-dotenv>=1.0.0",
+]
+description = "Backend service for interacting with HashiCorp Vault"
+name = "pyvault"
+#readme = "README.md"
+requires-python = ">=3.10"
+version = "0.1.0"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4.2",
+  "ruff>=0.1.0",
+]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "B", "I"]
+target-version = "py310"
+
+[tool.pytest]
+testpaths = ["tests"]
