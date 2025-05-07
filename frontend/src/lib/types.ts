@@ -10,6 +10,8 @@ export interface HealthStatus {
   }
   
   export interface Secret {
-    path: string;
-    data: Record<string, string>;
+    secretPath?: string;
+    secretKey?: string;
+    secretValue?: string;
+    data?: Record<string, string>;
   }

@@ -1,30 +1,128 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { HealthStatus } from '$lib/types';
+	import type { SecretList } from '$lib/types';
+	import type { Secret } from '$lib/types';
 
-	let health: HealthStatus | null = null;
-	let loading = true;
+	let path = 'secret/';
+	let secretList: string[] = [];
+	let secretValue: Secret = {
+		secretPath: 'secret',
+		secretKey: 'example',
+		secretValue: 'value'
+	};
+	let loading = false;
 	let error: string | null = null;
 
-	onMount(async () => {
+	function showAlert(message: any) {
+		alert(message);
+	}
+
+	async function fetchSecrets() {
+		loading = true;
+		error = null;
 		try {
-			const response = await fetch('http://localhost:8000/health');
-			if (!response.ok) throw new Error('Failed to fetch health status');
-			health = await response.json();
+			const response = await fetch(`http://localhost:8000/secrets/${path}`);
+			if (!response.ok) throw new Error('Failed to fetch secrets');
+			const data = (await response.json()) as SecretList;
+			secretList = data.paths;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An unknown error occurred';
+			secretList = [];
 		} finally {
 			loading = false;
 		}
-	});
+	}
+
+	async function newSecret() {
+		loading = true;
+		error = null;
+		try {
+			const response = await fetch(`http://localhost:8000/secrets/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(secretValue)
+			});
+
+			if (!response.ok) throw new Error('Failed to create new secret');
+			const data = (await response.json()) as Secret;
+			secretValue = data;
+			await fetchSecrets();
+		} catch (err) {
+			error =
+				err instanceof Error
+					? err.message
+					: 'An unknown error occurred while saving your new secret.';
+		} finally {
+			loading = false;
+		}
+	}
+
+	onMount(fetchSecrets);
 </script>
 
 <svelte:head>
-	<title>PyVault - Dashboard</title>
+	<title>PyVault - Secrets</title>
 </svelte:head>
 
-<div class="dashboard">
-	<h2 class="text-xl font-semibold mb-4">Vault Status</h2>
+<div class="new secret">
+	<h2 class="text-xl font-semibold mb-4">New Secret</h2>
+	<br />
+	<div class="flex">
+		<input
+			type="text"
+			bind:value={secretValue.secretKey}
+			class="flex-grow p-2 border rounded-l"
+			placeholder="new secret key"
+		/>
+		<input
+			type="text"
+			bind:value={secretValue.secretValue}
+			class="flex-grow p-2 border rounded-l"
+			placeholder="new secret value"
+		/>
+		<input
+			type="text"
+			bind:value={secretValue.secretPath}
+			class="flex-grow p-2 border rounded-l"
+			placeholder="path for this secret"
+		/>
+
+		<button
+			on:click={newSecret}
+			class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+		>
+			New
+		</button>
+	</div>
+</div>
+
+<div class="view secrets">
+	<h2 class="text-xl font-semibold mb-4">Browse Secrets</h2>
+
+	<div class="mb-4">
+		<div class="flex">
+			<input
+				type="text"
+				bind:value={secretValue.secretPath}
+				class="flex-grow p-2 border rounded-l"
+				placeholder="secret"
+			/>
+			<button
+				on:click={fetchSecrets}
+				class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+			>
+				Browse
+			</button>
+			<button
+				on:click={() => showAlert(secretValue.secretPath)}
+				class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+			>
+				Show Path
+			</button>
+		</div>
+	</div>
 
 	{#if loading}
 		<p>Loading...</p>
@@ -32,35 +130,22 @@
 		<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
 			<p>Error: {error}</p>
 		</div>
-	{:else if health}
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<div class="bg-white p-4 shadow rounded">
-				<h3 class="font-medium">Status</h3>
-				<div class="mt-2 flex items-center">
-					{#if health.status === 'healthy'}
-						<span class="h-3 w-3 bg-green-500 rounded-full mr-2"></span>
-						<span>Healthy</span>
-					{:else}
-						<span class="h-3 w-3 bg-red-500 rounded-full mr-2"></span>
-						<span>Unhealthy</span>
-					{/if}
-				</div>
-			</div>
-
-			<div class="bg-white p-4 shadow rounded">
-				<h3 class="font-medium">Version</h3>
-				<p class="mt-2">{health.version}</p>
-			</div>
-
-			<div class="bg-white p-4 shadow rounded">
-				<h3 class="font-medium">Initialized</h3>
-				<p class="mt-2">{health.initialized ? 'Yes' : 'No'}</p>
-			</div>
-
-			<div class="bg-white p-4 shadow rounded">
-				<h3 class="font-medium">Sealed</h3>
-				<p class="mt-2">{health.sealed ? 'Yes' : 'No'}</p>
-			</div>
+	{:else if secretList.length === 0}
+		<p>No secrets found at this path.</p>
+	{:else}
+		<div class="bg-white shadow rounded">
+			<ul class="divide-y">
+				{#each secretList as secret}
+					<li class="p-3 hover:bg-gray-50">
+						<a
+							href={`/secrets/view?path=${secretValue.secretPath}${secretValue.secretValue}`}
+							class="block"
+						>
+							{secret}
+						</a>
+					</li>
+				{/each}
+			</ul>
 		</div>
 	{/if}
 </div>
