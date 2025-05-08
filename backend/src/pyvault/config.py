@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(".env.local")
 
 
 class VaultConfig(BaseModel):

@@ -17,12 +17,13 @@
 		alert(message);
 	}
 
-	async function fetchSecrets() {
+	async function fetchSecretsList() {
 		loading = true;
 		error = null;
 		try {
-			const response = await fetch(`http://localhost:8000/secrets/${path}`);
-			if (!response.ok) throw new Error('Failed to fetch secrets');
+			//const response = await fetch(`http://localhost:8000/secrets/${path}`);
+            const response = await fetch(`http://localhost:8000/secrets/`);
+            if (!response.ok) throw new Error('Failed to fetch list of secret paths');
 			const data = (await response.json()) as SecretList;
 			secretList = data.paths;
 		} catch (err) {
@@ -31,7 +32,22 @@
 		} finally {
 			loading = false;
 		}
+        //TO DO: Secrets list only returns one secret engines list of secrets, it should return all enabled engines too
 	}
+
+    async function fetchSecret() {
+        loading = true;
+        error = null;
+        try {
+            const response = await fetch(`http://localhost.8000/secret/${path}`):
+            if (!response.ok) throw new Error('Failed to secret');
+            const data = (await response.json()) as Secret;
+            //secretValue = TO DO: left off here
+
+        } catch (err) {
+            error = err instanceof Error ? err.message : "An unknown error ocurred";
+        }
+    }
 
 	async function newSecret() {
 		loading = true;
@@ -48,7 +64,7 @@
 			if (!response.ok) throw new Error('Failed to create new secret');
 			const data = (await response.json()) as Secret;
 			secretValue = data;
-			await fetchSecrets();
+			await fetchSecret();
 		} catch (err) {
 			error =
 				err instanceof Error
@@ -59,7 +75,7 @@
 		}
 	}
 
-	onMount(fetchSecrets);
+	onMount(fetchSecretsList);
 </script>
 
 <svelte:head>
@@ -110,7 +126,7 @@
 				placeholder="secret"
 			/>
 			<button
-				on:click={fetchSecrets}
+				on:click={fetchSecretsList}
 				class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
 			>
 				Browse
