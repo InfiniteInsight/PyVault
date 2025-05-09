@@ -13,7 +13,7 @@
 		<div class="container mx-auto px-4">
 			<h1 class="text-2xl font-bold py-4">QuickNav</h1>
 			<nav class="mb-4">
-				<a href="/" class="mr-4">Dashboard |</a>
+				<a href="/" class="mr-4">Home |</a>
 				<a href="/secrets" class="mr-4">Secrets</a>
 			</nav>
 		</div>

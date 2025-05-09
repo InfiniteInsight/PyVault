@@ -26,3 +26,13 @@ class HealthStatus(BaseModel):
     initialized: bool
     sealed: bool
     version: str
+
+
+class InitializeVault(BaseModel):
+    is_initialized: str
+    root_token: str
+    keys: str
+
+
+class SealedStatus(BaseModel):
+    sealed: str

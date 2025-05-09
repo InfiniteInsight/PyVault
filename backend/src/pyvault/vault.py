@@ -1,11 +1,12 @@
 from typing import Any, Dict, List
 
 import hvac
+from pydantic import BaseModel
 
 from .config import config
 
 
-class VaultClient:
+class VaultClient(BaseModel):
     def __init__(self):
         self.client = hvac.Client(
             url=config.vault.url,
@@ -48,3 +49,17 @@ class VaultClient:
         """Delete a secret at a given path"""
         self.client.secrets.kv.v2.delete_metadata_and_all_versions(path=path)
         return True
+
+    def seal_vault(self) -> str:
+        """Seal the Vault"""
+        self.client.sys.seal()
+        status = self.client.sys.is_sealed()
+        return str(status)
+
+    def initialize_vault(self, shares: int, threshold: int) -> str:
+        """Initialize Hashi Vault and get the root token and unseal keys"""
+        result = self.client.initialize(shares, threshold)
+        root_token = result["root_token"]
+        keys = result["keys"]
+        is_initialized = str(self.client.sys.is_initialized())
+        return root_token, keys, is_initialized

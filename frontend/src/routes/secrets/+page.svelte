@@ -22,8 +22,8 @@
 		error = null;
 		try {
 			//const response = await fetch(`http://localhost:8000/secrets/${path}`);
-            const response = await fetch(`http://localhost:8000/secrets/`);
-            if (!response.ok) throw new Error('Failed to fetch list of secret paths');
+			const response = await fetch(`http://localhost:8000/secrets/`);
+			if (!response.ok) throw new Error('Failed to fetch list of secret paths');
 			const data = (await response.json()) as SecretList;
 			secretList = data.paths;
 		} catch (err) {
@@ -32,22 +32,21 @@
 		} finally {
 			loading = false;
 		}
-        //TO DO: Secrets list only returns one secret engines list of secrets, it should return all enabled engines too
+		//TO DO: Secrets list only returns one secret engines list of secrets, it should return all enabled engines too
 	}
 
-    async function fetchSecret() {
-        loading = true;
-        error = null;
-        try {
-            const response = await fetch(`http://localhost.8000/secret/${path}`):
-            if (!response.ok) throw new Error('Failed to secret');
-            const data = (await response.json()) as Secret;
-            //secretValue = TO DO: left off here
-
-        } catch (err) {
-            error = err instanceof Error ? err.message : "An unknown error ocurred";
-        }
-    }
+	async function fetchSecret() {
+		loading = true;
+		error = null;
+		try {
+			const response = await fetch(`http://localhost.8000/secret/${path}`);
+			if (!response.ok) throw new Error('Failed to secret');
+			const data = (await response.json()) as Secret;
+			//secretValue = TO DO: left off here
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An unknown error ocurred';
+		}
+	}
 
 	async function newSecret() {
 		loading = true;
