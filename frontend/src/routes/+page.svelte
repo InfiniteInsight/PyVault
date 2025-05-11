@@ -23,7 +23,6 @@
 			loading = true;
 			const response = await fetch('http://localhost:8000/initialize', {
 				method: 'POST',
-				//body: //pass shares or threshold?
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -39,7 +38,12 @@
 	async function getHealth() {
 		try {
 			loading = true;
-			const response = await fetch('http://localhost:8000/health');
+			const response = await fetch('http://localhost:8000/health', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
 			if (!response.ok) throw new Error('Failed to fetch health status');
 			health = await response.json();
 		} catch (err) {
@@ -54,15 +58,14 @@
 
 	async function sealVault() {
 		try {
-			loading = true;
-			const response = await fetch('http://localhost:8200/seal', {
+			//loading = true;
+			const response = await fetch('http://localhost:8000/seal', {
 				method: 'POST',
-				//body:"",
 				headers: {
 					'Content-Type': 'application/json'
 				}
 			});
-			loading = false;
+			//loading = false;
 			getHealth();
 			return alert(response);
 		} catch (err) {

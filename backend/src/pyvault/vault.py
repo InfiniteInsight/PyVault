@@ -1,12 +1,11 @@
 from typing import Any, Dict, List
 
 import hvac
-from pydantic import BaseModel
 
 from .config import config
 
 
-class VaultClient(BaseModel):
+class VaultClient:
     def __init__(self):
         self.client = hvac.Client(
             url=config.vault.url,
@@ -57,9 +56,24 @@ class VaultClient(BaseModel):
         return str(status)
 
     def initialize_vault(self, shares: int, threshold: int) -> str:
-        """Initialize Hashi Vault and get the root token and unseal keys"""
-        result = self.client.initialize(shares, threshold)
-        root_token = result["root_token"]
-        keys = result["keys"]
-        is_initialized = str(self.client.sys.is_initialized())
-        return root_token, keys, is_initialized
+        """Initialize Hashi Vault if it isn't already, then get the root token and unseal keys.
+        Vault will already be initialized with the bring up of the docker container,
+        this is just
+        """
+        initialized = self.client.sys.is_initialized()
+
+        if not (initialized):
+            initialize = self.client.sys.initialize(
+                secret_shares=shares, secret_threshold=threshold
+            )
+            return {
+                "initialized": True,
+                "keys": initialize["keys"],
+                "keys_base64": initialize["keys_base64"],
+                "root_token": initialize["root_token"],
+            }
+        else:
+            return {
+                "initialized": True,
+                "message": "Vault has already been initialized.",
+            }

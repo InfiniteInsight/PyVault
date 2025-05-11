@@ -1,7 +1,7 @@
 import uvicorn
 
-from src.pyvault.api import app
-from src.pyvault.config import config
+from .api import app
+from .config import config
 
 
 def main():
