@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { HealthStatus } from '$lib/types';
+	import { resolveConfig } from 'prettier';
 
 	let health: HealthStatus | null = null;
 	let loading = true;
@@ -27,7 +28,11 @@
 					'Content-Type': 'application/json'
 				}
 			});
-			return response;
+
+			const data = await response.json();
+			alert(JSON.stringify(data, null, 2));
+			getHealth;
+			return data;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An unknown error occurred initializing vault';
 		} finally {
@@ -44,7 +49,11 @@
 					'Content-Type': 'application/json'
 				}
 			});
-			if (!response.ok) throw new Error('Failed to fetch health status');
+			if (!response.ok) {
+				const data = await response.json();
+				alert(JSON.stringify(data, null, 2));
+				throw new Error('Failed to fetch health status');
+			}
 			health = await response.json();
 		} catch (err) {
 			error =
@@ -66,11 +75,24 @@
 				}
 			});
 			//loading = false;
-			getHealth();
-			return alert(response);
+
+			const data = await response.json();
+
+			return alert(JSON.stringify(data, null, 2));
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An unknown error occurred when sealing vault';
 		}
+	}
+
+	async function isSealed() {
+		const response = await fetch('http://localhost:8000/sealed', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = await response.json();
+		return alert(JSON.stringify(data, null, 2));
 	}
 
 	onMount(getHealth);
@@ -96,6 +118,9 @@
 	</button>
 	<button on:click={sealVault} class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
 		Seal Vault
+	</button>
+	<button on:click={isSealed} class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
+		Sealed Status
 	</button>
 	<br />
 	<h2 class="text-xl font-semibold mb-4">Vault Status</h2>

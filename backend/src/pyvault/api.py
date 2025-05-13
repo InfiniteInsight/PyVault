@@ -39,6 +39,13 @@ async def health(vault_client: VaultClient = Depends(get_vault_client)):
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@app.get("/sealed", response_model=SealedStatus)
+async def sealed(vault_client=Depends(get_vault_client)):
+    """Check if the vault is sealed"""
+    sealed_status = vault_client.is_sealed()
+    return {"sealed": sealed_status}
+
+
 @app.get("/secrets/{path:path}", response_model=SecretList)
 async def list_secrets(
     path: str, vault_client: VaultClient = Depends(get_vault_client)
@@ -103,5 +110,12 @@ async def initialize_vault(
     vault_client: VaultClient = Depends(get_vault_client),
 ):
     """Initialize Hashi Vault"""
-    root_token, keys, is_initialized = vault_client.initialize_vault(shares, threshold)
-    return {"root_token": root_token, "keys": keys, "is_initialized": is_initialized}
+    # root_token, keys, keys_base64, is_initialized = vault_client.initialize_vault(
+    result = vault_client.initialize_vault(shares, threshold)
+
+    return result
+
+
+# to do: When vault is sealed and "refresh status" is pressed, update the status table
+# there is a bug where when the vault is sealed and then unsealed the refresh status button
+# does not work it fails to fetch health status.

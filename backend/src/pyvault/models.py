@@ -29,10 +29,11 @@ class HealthStatus(BaseModel):
 
 
 class InitializeVault(BaseModel):
-    is_initialized: str
-    root_token: str
-    keys: str
+    initialized: Optional[bool]
+    root_token: Optional[str]
+    keys: Optional[List[str]] | Optional[str]
+    keys_base64: Optional[List[str]] | Optional[str]
 
 
 class SealedStatus(BaseModel):
-    sealed: str
+    sealed: bool

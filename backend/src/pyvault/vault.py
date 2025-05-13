@@ -13,6 +13,17 @@ class VaultClient:
             namespace=config.vault.namespace or None,
         )
 
+    def __str__(self):
+        result = self.client.sys.is_initialized()
+        stringed = {
+            "initialized": result["initialized"],
+            "vault_token": result["vault_token"],
+            "keys": result["keyts"],
+            "keys_base64": result["keys_base64"],
+        }
+        # return f"initialized={stringed.initialized}, vault_token={stringed.vault_token}, keys={stringed.keys}, keys_base64={stringed.keys_base64}"
+        return stringed
+
     def get_health(self) -> Dict[str, Any]:
         """Get Vault health status"""
         health = self.client.sys.read_health_status(method="GET")
@@ -49,11 +60,16 @@ class VaultClient:
         self.client.secrets.kv.v2.delete_metadata_and_all_versions(path=path)
         return True
 
-    def seal_vault(self) -> str:
+    def seal_vault(self) -> bool:
         """Seal the Vault"""
         self.client.sys.seal()
         status = self.client.sys.is_sealed()
-        return str(status)
+        return status
+
+    def is_sealed(self) -> bool:
+        """Check if the vault is sealed"""
+        sealed = self.client.sys.is_sealed()
+        return sealed
 
     def initialize_vault(self, shares: int, threshold: int) -> str:
         """Initialize Hashi Vault if it isn't already, then get the root token and unseal keys.
@@ -75,5 +91,7 @@ class VaultClient:
         else:
             return {
                 "initialized": True,
-                "message": "Vault has already been initialized.",
+                "root_token": "Vault has already been initialized.",
+                "keys": "Vault has already been initialized",
+                "keys_base64": "Vault has already been initialized",
             }
