@@ -172,7 +172,16 @@
 		return alert(JSON.stringify(data, null, 2));
 	}
 
-	async function pki_generate_root() {}
+	async function pki_generate_root() {
+		const response = await fetch('http://localhost:8000/pki_generate_root', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
 
 	onMount(getHealth);
 	onMount(configureAWSCreds);
@@ -238,7 +247,6 @@
 	>
 		Delete AWS Role
 	</button>
-	<br />
 	<button
 		on:click={setTTLLease}
 		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"

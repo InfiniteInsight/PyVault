@@ -117,12 +117,22 @@ async def initialize_vault(
     return result
 
 
+@app.post("/enable_aws_secrets_engine")
+async def enable_aws_secrets_engine(
+    vault_client: VaultClient = Depends(get_vault_client),
+):
+    """Enable AWS Secrets Engine in Vault"""
+    response = vault_client.enable_aws_secrets_engine()
+    return response
+
+
 @app.post("/create_aws_hvac_role")
 async def create_aws_hvac_role(
     policy: str,
     name: str,
     vault_client: VaultClient = Depends(get_vault_client),
 ):
+    """Create the Vault role with access to describe EC2"""
     if not policy:
         policy = {
             "Version": "2012-10-17",
@@ -194,3 +204,4 @@ async def pki_generate_root(vault_client: VaultClient = Depends(get_vault_client
 # to do: When vault is sealed and "refresh status" is pressed, update the status table
 # there is a bug where when the vault is sealed and then unsealed the refresh status button
 # does not work it fails to fetch health status.
+# also add more docstrings

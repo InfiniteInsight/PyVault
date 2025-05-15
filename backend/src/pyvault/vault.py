@@ -100,14 +100,42 @@ class VaultClient:
                 "keys_base64": "Vault has already been initialized",
             }
 
+    def enable_aws_secrets_engine(self):
+        """Enable AWS Secrets Engine in Vault"""
+        try:
+            engines_check = self.client.sys.list_mounted_secrets_engines()
+            if "aws/" not in engines_check:
+                self.client.sys.enable_secrets_engine(
+                    backend_type="aws", path="aws", description="AWS Secrets Engine"
+                )
+                return {"status": "success", "message": "AWS Secrets Engine enabled!"}
+            return {"status": "Info", "message": "AWS Secrets Engine already enabled."}
+        except Exception as err:
+            return {"status": "Error", "message": str(err)}
+
     def configure_aws_creds(self):  # leaving this out of .env and sticking to local env
         """Configure AWS IAM credentials for Vault"""
 
-        response = self.client.secrets.aws.configure_root_iam_credentials(
-            access_key=os.getenv("AWS_ACCESS_KEY_ID"),
-            secret_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        )
-        return response
+        self.enable_aws_secrets_engine()
+
+        aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+
+        if not aws_access_key or not aws_secret_key:
+            return {
+                "status": "Error",
+                "message": "AWS Credentials were not found in environment variables",
+            }
+        try:
+            response = self.client.secrets.aws.configure_root_iam_credentials(
+                access_key=aws_access_key, secret_key=aws_secret_key
+            )
+            return response, {
+                "status": "Success!",
+                "message": "AWS Credentials configured!",
+            }
+        except Exception as err:
+            return {"status": "Error", "message": str(err)}
 
     def rotate_aws_creds(self):
         """Rotate AWS IAM Credentials"""
@@ -209,3 +237,6 @@ class VaultClient:
             serial_number=sn
         )
         return revoke_certificate
+
+
+# to do: add more try catch handling
