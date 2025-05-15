@@ -1,8 +1,12 @@
+import os
 from typing import Any, Dict, List
 
 import hvac
+from dotenv import load_dotenv
 
 from .config import config
+
+load_dotenv(".env.local")
 
 
 class VaultClient:
@@ -95,3 +99,113 @@ class VaultClient:
                 "keys": "Vault has already been initialized",
                 "keys_base64": "Vault has already been initialized",
             }
+
+    def configure_aws_creds(self):  # leaving this out of .env and sticking to local env
+        """Configure AWS IAM credentials for Vault"""
+
+        response = self.client.secrets.aws.configure_root_iam_credentials(
+            access_key=os.getenv("AWS_ACCESS_KEY_ID"),
+            secret_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        )
+        return response
+
+    def rotate_aws_creds(self):
+        """Rotate AWS IAM Credentials"""
+        {self.client.secrets.aws.rotate_root_iam_credentials()}
+
+    def create_aws_hvac_role(self, name: str, policy: Dict):
+        """Create the IAM Role for Vault"""
+        {
+            self.client.secrets.aws.create_or_update_role(
+                name=name,
+                credential_type="assumed_role",
+                policy_document=policy,
+                policy_arn=["arn:aws:iam:aws:policy/AmazonVPCReadOnlyAccess"],
+            )
+        }
+
+    def set_aws_lease(self, ttl: int):
+        """Set the TTL Lease for AWS Secrets Engine"""
+        self.client.secrets.aws.configure_lease(
+            lease=f"{ttl}s",
+        )
+
+    def generate_aws_credentials(self, role_name: str):
+        """Create credentials for named role, the role must exist before being queried"""
+        if not role_name:
+            role_name = "hvac-role"
+
+        generate_creds_response = self.client.secrets.aws.generate_credentials(
+            role_name
+        )
+
+        response = {
+            "access_key_id": generate_creds_response["data"]["access_key"],
+            "secret_key": generate_creds_response["data"]["secret_key"],
+        }
+
+        return response
+
+    def delete_aws_role(self, role_name: str):
+        """Delete AWS Role"""
+        # to do: list roles and check to make sure role was deleted
+        # to do: pop a confirm box to make sure it was not an errant click
+        if not role_name:
+            role_name = "hvac-role"
+
+        response = self.client.secrets.aws.delete_role(name=role_name)
+        return response
+
+    def list_aws_roles(self):
+        """List roles from AWS"""
+        response = self.client.secrets.aws.list_roles()
+        format_response = {"roles": response["data"]["keys"]}
+        return format_response
+
+    def pki_generate_root(
+        self,
+        type: str,
+        CN: str,
+        issuer: str,
+        permitted_domains: str,
+        ttl: int = 365,
+        format: str = "pem",
+    ):
+        """Generate Root Cert"""
+        if not type:
+            type = "internal"
+        if not issuer:
+            issuer = "Sample Root"
+        if not permitted_domains:
+            permitted_domains = "nevermorelab.com"
+        if not CN:
+            CN = "test"
+
+        generate_root = self.client.secrets.pki.generate_root(type=type, common_name=CN)
+        return generate_root
+
+    def pki_generate_intermediate(self, type: str, CN: str):
+        """Generate Intermediate Cert"""
+        generate_intermediate = self.client.secrets.pki.generate_intermediate(
+            type=type, common_name=CN
+        )
+        return generate_intermediate
+
+    def pki_list_certificates(self):
+        """List certs in PKI Engine"""
+        list_certificates = self.client.secrets.pki.list_certificates()
+        return list_certificates
+
+    def pki_generate_certificate(self, name: str, CN: str):
+        """Create a certificate with the PKI engine"""
+        generate_certificate = self.client.secrets.pki.generate_certificate(
+            name=name, common_name=CN
+        )
+        return generate_certificate
+
+    def pki_revoke_certificate(self, name: str, sn: str):
+        """Revoke a certificate with the PKI engine"""
+        revoke_certificate = self.client.secrets.pki.revoke_certificate(
+            serial_number=sn
+        )
+        return revoke_certificate

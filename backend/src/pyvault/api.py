@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import (
+    GeneratedAWSCreds,
     HealthStatus,
     InitializeVault,
     SealedStatus,
@@ -114,6 +115,80 @@ async def initialize_vault(
     result = vault_client.initialize_vault(shares, threshold)
 
     return result
+
+
+@app.post("/create_aws_hvac_role")
+async def create_aws_hvac_role(
+    policy: str,
+    name: str,
+    vault_client: VaultClient = Depends(get_vault_client),
+):
+    if not policy:
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Resource": "*",
+                    "Action": "ec2:Describe*",
+                    "Effect": "Allow",
+                },
+            ],
+        }
+    if not name:
+        name = "hvac-role"
+
+    vault_client.create_aws_hvac_role(policy)
+
+
+@app.post("/set_aws_lease")
+async def set_aws_lease(
+    ttl: int, vault_client: VaultClient = Depends(get_vault_client)
+):
+    vault_client.set_aws_lease(ttl=ttl)
+
+
+@app.post("/generate_aws_credentials", response_model=GeneratedAWSCreds)
+async def generate_aws_credentials(
+    role_name: str,
+    vault_client: VaultClient = Depends(get_vault_client),
+):
+    response = vault_client.generate_aws_credentials(role_name=role_name)
+
+    return response
+
+
+@app.delete("/delete_aws_role")
+async def delete_aws_role(
+    role_name: str, vault_client: VaultClient = Depends(get_vault_client)
+):
+    response = vault_client.delete_aws_role(role_name=role_name)
+    return response
+
+
+@app.get("/list_aws_roles")
+async def list_aws_roles(vault_client: VaultClient = Depends(get_vault_client)):
+    response = vault_client.list_aws_roles()
+    return response
+
+
+@app.post("/rotate_aws_creds")
+async def rotate_aws_creds(vault_client: VaultClient = Depends(get_vault_client)):
+    response = vault_client.rotate_aws_creds()
+    return response
+
+
+@app.post("/configure_aws_creds")
+async def configure_aws_creds(vault_client: VaultClient = Depends(get_vault_client)):
+    response = vault_client.configure_aws_creds()
+    return response
+
+
+@app.post("/pki_generate_root")
+async def pki_generate_root(vault_client: VaultClient = Depends(get_vault_client)):
+    response = vault_client.pki_generate_root(
+        CN="test.nevermorelab.com", type="internal", ttl=365, format="pem"
+    )
+    return response
 
 
 # to do: When vault is sealed and "refresh status" is pressed, update the status table

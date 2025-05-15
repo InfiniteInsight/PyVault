@@ -91,11 +91,91 @@
 				'Content-Type': 'application/json'
 			}
 		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function listAWSRoles() {
+		const response = await fetch('http://localhost:8000/list_aws_roles', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function rotateRootAWSCreds() {
+		const response = await fetch('http://localhost:8000/rotate_aws_creds', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
 		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
+	async function createAWSHVACRole() {
+		const response = await fetch('http://localhost:8000/create_aws_hvac_role', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function delteAWSRole() {
+		const response = await fetch('http://localhost:8000/delete_aws_role', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application-json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function setTTLLease() {
+		const response = await fetch('http://localhost:8000/set_aws_lease', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function generateAWSCreds() {
+		const response = await fetch('http://localhost:8000/generate_aws_credentials', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function configureAWSCreds() {
+		const response = await fetch('http://localhost:8000/configure_aws_creds', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = (await response).json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function pki_generate_root() {}
+
 	onMount(getHealth);
+	onMount(configureAWSCreds);
 </script>
 
 <svelte:head>
@@ -104,7 +184,7 @@
 
 <div class="dashboard">
 	<br />
-	<h2 class="text-xl font-semibold mb-4">Vault Tools</h2>
+	<h2 class="text-xl font-semibold mb-4">KV Vault Tools</h2>
 	<br />
 	<button
 		on:click={initialize}
@@ -122,6 +202,65 @@
 	<button on:click={isSealed} class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
 		Sealed Status
 	</button>
+	<br />
+	<h2 class="text-xl font-semibold mb-4">AWS Vault Tools</h2>
+	<br />
+
+	<button
+		on:click={configureAWSCreds}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Configure AWS
+	</button>
+
+	<button
+		on:click={listAWSRoles}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		List AWS Roles
+	</button>
+	<button
+		on:click={rotateRootAWSCreds}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Rotate Root IAM Creds
+	</button>
+	<button
+		on:click={createAWSHVACRole}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Create/Update AWS Role
+	</button>
+	<br />
+	<button
+		on:click={delteAWSRole}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Delete AWS Role
+	</button>
+	<br />
+	<button
+		on:click={setTTLLease}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Set TTL Lease
+	</button>
+	<button
+		on:click={generateAWSCreds}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Generate AWS Creds
+	</button>
+	<br />
+	<h2 class="text-xl font-semibold mb-4">PKI Tools</h2>
+	<br />
+	<button
+		on:click={pki_generate_root}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Generate PKI Root</button
+	>
+
 	<br />
 	<h2 class="text-xl font-semibold mb-4">Vault Status</h2>
 	<br />

@@ -37,3 +37,8 @@ class InitializeVault(BaseModel):
 
 class SealedStatus(BaseModel):
     sealed: bool
+
+
+class GeneratedAWSCreds(BaseModel):
+    access_key_id: str
+    secret_key: str
