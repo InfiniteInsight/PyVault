@@ -5,7 +5,10 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install UV
-RUN pip install --no-cache-dir uv
+RUN pip install --no-cache-dir 
+
+# Env files
+COPY .env .env.local
 
 # Copy project files
 COPY pyproject.toml .

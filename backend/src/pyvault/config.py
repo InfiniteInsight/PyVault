@@ -3,8 +3,21 @@ import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-# Load environment variables from .env file
-load_dotenv(".env.local")
+# Load environment variables from .env file in docker container or locally
+
+for env_file in [".env.local", ".env"]:
+    if os.path.exists(env_file):
+        print(f"Loading environment from {env_file}")
+        load_dotenv(env_file)
+        break
+
+# Debug
+print(f"VAULT_ADDR: {os.environ.get('VAULT_ADDR')}")
+print(
+    f"AWS_ACCESS_KEY_ID exists: {
+        'Yes' if os.environ.get('AWS_ACCESS_KEY_ID') else 'No'
+    }"
+)
 
 
 class VaultConfig(BaseModel):
