@@ -21,7 +21,7 @@
 		loading = true;
 		error = null;
 		try {
-			//const response = await fetch(`http://localhost:8000/secrets/${path}`);
+			//const response = await fetch(`http://localhost:8000/secrets/${path}`); #
 			const response = await fetch(`http://localhost:8000/secrets/`);
 			if (!response.ok) throw new Error('Failed to fetch list of secret paths');
 			const data = (await response.json()) as SecretList;
