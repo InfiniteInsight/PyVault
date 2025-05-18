@@ -81,7 +81,7 @@
 	<title>PyVault - Secrets</title>
 </svelte:head>
 
-<div class="secrets">
+<div class="new secret">
 	<h2 class="text-xl font-semibold mb-4">New Secret</h2>
 	<br />
 	<div class="flex">

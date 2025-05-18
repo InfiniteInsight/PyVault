@@ -12,6 +12,7 @@ def main():
         host=config.api.host,
         port=config.api.port,
         # reload=config.api.debug, #uncomment for local dev only, not for docker.
+       # reload=config.api.debug, #uncomment for local dev only, not for docker.
     )
 
 
