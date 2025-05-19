@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install UV
-RUN pip install --no-cache-dir 
+RUN pip install --no-cache-dir uv
 
 # Env files
 COPY .env .env.local

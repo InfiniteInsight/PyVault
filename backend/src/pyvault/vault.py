@@ -200,7 +200,7 @@ class VaultClient:
             )
             return {
                 "status": "success",
-                "message": f"AWS role '{name}' created/updated successfully",
+                "message": f"AWS role '{response.name}' created/updated successfully",
             }
         except Exception as e:
             return {"status": "error", "message": str(e)}
@@ -258,9 +258,21 @@ class VaultClient:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
+    def enable_pki_engine(self):
+        enabled_engines = self.client.sys.list_mounted_secrets_engines()
+        if "pki/" not in enabled_engines:
+            self.client.sys.enable_secrets_engine(
+                backend_type="pki", path="pki", description="PKI engine"
+            )
+            return {"status": "success", "message": "PKI engine enabled"}
+        return {
+            "status": "success",
+            "message": "PKI engine already enabled",
+        }
+
     def pki_generate_root(
         self,
-        type: str = "internal",
+        cert_type: str = "internal",
         CN: str = "test.nevermorelab.com",
         issuer: str = "Sample Root",
         permitted_domains: str = "nevermorelab.com",
@@ -270,19 +282,44 @@ class VaultClient:
         """Generate Root Cert"""
         try:
             generate_root = self.client.secrets.pki.generate_root(
-                type=type, common_name=CN
+                type=cert_type,
+                common_name=CN,
+                permitted_domains=permitted_domains,
             )
             return {"status": "success", "data": generate_root}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def pki_generate_intermediate(self, type: str, CN: str):
+    def pki_generate_intermediate(
+        self,
+        cert_type: str = "internal",
+        CN: str = "intermediate.nevermorelab.com",
+    ):
         """Generate Intermediate Cert"""
         try:
             generate_intermediate = self.client.secrets.pki.generate_intermediate(
-                type=type, common_name=CN
+                type=cert_type, common_name=CN
             )
             return {"status": "success", "data": generate_intermediate}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    def pki_sign_intermediate(self, CSR: str, CN: str):
+        """Sign a CSR with the root to create an intermediate"""
+
+        try:
+            intermediate_response = self.client.secrets.pki.sign_intermediate(
+                csr=CSR, common_name=CN
+            )
+            return intermediate_response
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    def pki_sign_certificate(self, CSR: str, CN: str):
+        """Sign a CSR with an intermediate"""
+        try:
+            return_signed = self.client.secrets.pki.sign_certificate(name=CN, csr=CSR)
+            return return_signed
         except Exception as e:
             return {"status": "error", "message": str(e)}
 

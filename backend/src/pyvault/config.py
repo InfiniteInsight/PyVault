@@ -11,14 +11,6 @@ for env_file in [".env.local", ".env"]:
         load_dotenv(env_file)
         break
 
-# Debug
-print(f"VAULT_ADDR: {os.environ.get('VAULT_ADDR')}")
-print(
-    f"AWS_ACCESS_KEY_ID exists: {
-        'Yes' if os.environ.get('AWS_ACCESS_KEY_ID') else 'No'
-    }"
-)
-
 
 class VaultConfig(BaseModel):
     url: str = os.getenv("VAULT_ADDR", "http://127.0.0.1:8200")

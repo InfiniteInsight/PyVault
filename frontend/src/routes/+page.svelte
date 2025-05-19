@@ -91,7 +91,7 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -102,7 +102,7 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -124,7 +124,7 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -135,7 +135,7 @@
 				'Content-Type': 'application-json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -146,7 +146,7 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -157,7 +157,7 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -168,10 +168,18 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
+	async function enable_pki_engine() {
+		const response = await fetch('http://localhost:8000/enable_pki_engine', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	}
 	async function pki_generate_root() {
 		const response = await fetch('http://localhost:8000/pki_generate_root', {
 			method: 'POST',
@@ -179,7 +187,29 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		const data = (await response).json();
+		const data = await response.json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function pki_generate_intermediate() {
+		const response = await fetch('http://localhost:8000/pki_generate_intermediate', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const data = await response.json();
+		return alert(JSON.stringify(data, null, 2));
+	}
+
+	async function pki_sign_certificate() {
+		const response = await fetch('http://localhost:8000/pki_sign_certificate', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/jsopn'
+			}
+		});
+		const data = await response.json();
 		return alert(JSON.stringify(data, null, 2));
 	}
 
@@ -234,19 +264,21 @@
 	>
 		Rotate Root IAM Creds
 	</button>
+	<br />
 	<button
 		on:click={createAWSHVACRole}
 		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
 	>
 		Create/Update AWS Role
 	</button>
-	<br />
 	<button
 		on:click={delteAWSRole}
 		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
 	>
 		Delete AWS Role
 	</button>
+	<br />
+	<br />
 	<button
 		on:click={setTTLLease}
 		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
@@ -262,6 +294,12 @@
 	<br />
 	<h2 class="text-xl font-semibold mb-4">PKI Tools</h2>
 	<br />
+	<button
+		on:click={enable_pki_engine}
+		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+	>
+		Enable PKI Engine
+	</button>
 	<button
 		on:click={pki_generate_root}
 		class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"

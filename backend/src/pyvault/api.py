@@ -193,11 +193,62 @@ async def configure_aws_creds(vault_client: VaultClient = Depends(get_vault_clie
     return response
 
 
+@app.post("/enable_pki_engine")
+async def enable_pki_engine(vault_client: VaultClient = Depends(get_vault_client)):
+    response = vault_client.enable_pki_engine()
+    return response
+
+
 @app.post("/pki_generate_root")
 async def pki_generate_root(vault_client: VaultClient = Depends(get_vault_client)):
     response = vault_client.pki_generate_root(
-        CN="test.nevermorelab.com", type="internal", ttl=365, format="pem"
+        CN="test.nevermorelab.com", cert_type="internal", ttl=365, format="pem"
     )
+    return response
+
+
+@app.post("/pki_generate_intermediate")
+async def pki_generate_intermediate(
+    vault_client: VaultClient = Depends(get_vault_client),
+):
+    response = vault_client.pki_generate_intermediate(
+        CN="intermediate.nevermorelab.com",
+        cert_type="internal",
+    )
+
+    return response
+
+
+@app.post("/pki_sign_certificate")
+async def pki_sign_certificate(
+    CN: str, CSR: str, vault_client: VaultClient = Depends(get_vault_client)
+):
+    if not CN:
+        CN = "test-cert.nevermorelab.com"
+
+    if not CSR:
+        CSR = """
+                    -----BEGIN CERTIFICATE REQUEST-----
+            MIICojCCAYoCAQAwJTEjMCEGA1UEAxMadGVzdC1jZXJ0Lm5ldmVybW9yZWxhYi5j
+            b20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDpUKN2bX+8gBSXz1Yx
+            1Byoj5ao9CIgqo962E/L/iFHl8Q5Bk3+veZ5oGUj7ftVTMjeJG3mjOtNuqNnN92J
+            0talQDC6jk8Xsx9pSGHYdn6XidTlXic8lwgZstXD0KxqngHoxch0QhNzkOqUrMLu
+            MSyXRLG3WLODJpAXkOOWm2bSY1VgI/QRXKAdmT+CnmdB3A/BAXVcOBiBBZV8Ha2j
+            kq/1Ni2NCq8JTGIs70FwkYQnI4jsxbP/R4liNXQIAztv6GuEWBtPtOWZrQYvSl6E
+            d2uHvbmPefyg5YinG3yCrBRSTDqgDOhmqaNkTx8x3RIAB8nRbnJE5FSOaE250vUQ
+            bi8hAgMBAAGgODA2BgkqhkiG9w0BCQ4xKTAnMCUGA1UdEQQeMByCGnRlc3QtY2Vy
+            dC5uZXZlcm1vcmVsYWIuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQC7lL2Id2uWvnM4
+            NP7id6Bj/yJIqcSNSqHaX8UvNn3MyJm4h/DhwRCaM+I/UJezx/OXQX5RWYIsiS05
+            /BepcFvVVLGjp4jTlZ06vSl6b1bXqbObGSJHnAs1AFLuliowkXJQwjYykXSuxzTV
+            TGSh8JognMXDUwjwjzy16ICCwfD97JjokTR1e+5JEF02qcIDbmOuQ6onNaMKF7cC
+            heHce/HGL4raEPgYreYWfSALqUr41mDwuMvVk1fZXpU8OpMrN81MRy0GnuPT3pgR
+            fojJahAtTffY4Hv6RSLRZeVMCISiEHnkNw2ijYEuJWwJx3+CJAnbT6uI+pUtetBq
+            Sr7pHxV4
+            -----END CERTIFICATE REQUEST-----
+            """
+
+    response = vault_client.pki_sign_certificate(CSR=CSR, CN=CN)
+
     return response
 
 
